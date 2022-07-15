@@ -1,0 +1,277 @@
+﻿#pragma once
+#include "CoreMinimal.h"
+#include "HAPI.h"
+#include "HAPI_To_Unreal_Common_Bridge.generated.h"
+
+///////////////////UENUM///////////////////
+
+UENUM(BlueprintType)
+enum class EHoudiniSessionType : uint8
+{
+	HOUDINI_SESSION_INPROCESS,
+	HOUDINI_SESSION_THRIFT,
+	HOUDINI_SESSION_CUSTOM1,
+	HOUDINI_SESSION_CUSTOM2,
+	HOUDINI_SESSION_CUSTOM3,
+	HOUDINI_SESSION_MAX
+};
+
+UENUM(BlueprintType)
+enum class EHoudiniNodeType : uint8
+{
+	HOUDINI_NODETYPE_ANY,
+	HOUDINI_NODETYPE_NONE,
+	HOUDINI_NODETYPE_OBJ,
+	HOUDINI_NODETYPE_SOP,
+	HOUDINI_NODETYPE_CHOP,
+	HOUDINI_NODETYPE_ROP,
+	HOUDINI_NODETYPE_SHOP,
+	HOUDINI_NODETYPE_COP,
+	HOUDINI_NODETYPE_VOP,
+	HOUDINI_NODETYPE_DOP,
+	HOUDINI_NODETYPE_TOP
+};
+
+UENUM(BlueprintType)
+enum class EHoudiniNodeFlags : uint8
+{
+	HOUDINI_NODEFLAGS_ANY,
+	HOUDINI_NODEFLAGS_NONE,
+	/// Recursive Flag
+	HOUDINI_NODEFLAGS_DISPLAY,
+	/// Recursive Flag
+	HOUDINI_NODEFLAGS_RENDER,
+	HOUDINI_NODEFLAGS_TEMPLATED,
+	HOUDINI_NODEFLAGS_LOCKED,
+	HOUDINI_NODEFLAGS_EDITABLE,
+	HOUDINI_NODEFLAGS_BYPASS,
+	HOUDINI_NODEFLAGS_NETWORK,
+
+	/// OBJ Node Specific Flags
+	HOUDINI_NODEFLAGS_OBJ_GEOMETRY,
+	HOUDINI_NODEFLAGS_OBJ_CAMERA,
+	HOUDINI_NODEFLAGS_OBJ_LIGHT,
+	HOUDINI_NODEFLAGS_OBJ_SUBNET,
+
+	/// SOP Node Specific Flags
+	/// Looks for "curve"
+	HOUDINI_NODEFLAGS_SOP_CURVE,
+	/// Looks for Guide Geometry
+	HOUDINI_NODEFLAGS_SOP_GUIDE,
+
+	/// TOP Node Specific Flags
+	/// All TOP nodes except schedulers
+	HOUDINI_NODEFLAGS_TOP_NONSCHEDULER,
+
+	HOUDINI_NODEFLAGS_NON_BYPASS  /// Nodes that are not bypassed
+};
+
+UENUM(BlueprintType)
+enum class EHoudiniPartType : uint8
+{
+	HOUDINI_PARTTYPE_INVALID,
+	HOUDINI_PARTTYPE_MESH,
+	HOUDINI_PARTTYPE_CURVE,
+	HOUDINI_PARTTYPE_VOLUME,
+	HOUDINI_PARTTYPE_INSTANCER,
+	HOUDINI_PARTTYPE_BOX,
+	HOUDINI_PARTTYPE_SPHERE,
+	HOUDINI_PARTTYPE_MAX
+};
+
+UENUM(BlueprintType)
+enum class EHoudiniStorageType : uint8
+{
+	HOUDINI_STORAGETYPE_INVALID ,
+	HOUDINI_STORAGETYPE_INT,
+	HOUDINI_STORAGETYPE_INT64,
+	HOUDINI_STORAGETYPE_FLOAT,
+	HOUDINI_STORAGETYPE_FLOAT64,
+	HOUDINI_STORAGETYPE_STRING,
+	HOUDINI_STORAGETYPE_UINT8,
+	HOUDINI_STORAGETYPE_INT8,
+	HOUDINI_STORAGETYPE_INT16,
+	HOUDINI_STORAGETYPE_MAX
+};
+
+UENUM(BlueprintType)
+enum class EHoudiniAttributeOwner : uint8
+{
+	HOUDINI_ATTROWNER_INVALID,
+	HOUDINI_ATTROWNER_VERTEX,
+	HOUDINI_ATTROWNER_POINT,
+	HOUDINI_ATTROWNER_PRIM,
+	HOUDINI_ATTROWNER_DETAIL,
+	HOUDINI_ATTROWNER_MAX
+};
+template <typename T>
+class FEnumParser
+{
+	
+	TMap <FString, T> EnumMap;
+public:
+	FEnumParser() {};
+
+	T ParseEnum(const FString& value)
+	{
+		T* ValuePtr = EnumMap.Find(value);
+		check(ValuePtr);
+		return *ValuePtr;
+	}
+};
+
+
+FEnumParser<HAPI_NodeFlags>::FEnumParser()
+{
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_ANY", HAPI_NODEFLAGS_ANY);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_NONE", HAPI_NODEFLAGS_NONE);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_DISPLAY", HAPI_NODEFLAGS_DISPLAY);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_RENDER", HAPI_NODEFLAGS_RENDER);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_TEMPLATED", HAPI_NODEFLAGS_TEMPLATED);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_LOCKED", HAPI_NODEFLAGS_LOCKED);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_EDITABLE", HAPI_NODEFLAGS_EDITABLE);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_BYPASS", HAPI_NODEFLAGS_BYPASS);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_NETWORK", HAPI_NODEFLAGS_NETWORK);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_OBJ_GEOMETRY", HAPI_NODEFLAGS_OBJ_GEOMETRY);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_OBJ_CAMERA", HAPI_NODEFLAGS_OBJ_CAMERA);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_OBJ_LIGHT", HAPI_NODEFLAGS_OBJ_LIGHT);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_OBJ_SUBNET", HAPI_NODEFLAGS_OBJ_SUBNET);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_SOP_CURVE", HAPI_NODEFLAGS_SOP_CURVE);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_SOP_GUIDE", HAPI_NODEFLAGS_SOP_GUIDE);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_TOP_NONSCHEDULER", HAPI_NODEFLAGS_TOP_NONSCHEDULER);
+	EnumMap.Emplace("HOUDINI_NODEFLAGS_NON_BYPASS", HAPI_NODEFLAGS_NON_BYPASS);
+}
+
+FEnumParser<HAPI_NodeType>::FEnumParser()
+{
+	EnumMap.Emplace("HOUDINI_NODETYPE_ANY", HAPI_NODETYPE_ANY);
+	EnumMap.Emplace("HOUDINI_NODETYPE_NONE", HAPI_NODETYPE_NONE);
+	EnumMap.Emplace("HOUDINI_NODETYPE_OBJ", HAPI_NODETYPE_OBJ);
+	EnumMap.Emplace("HOUDINI_NODETYPE_SOP", HAPI_NODETYPE_SOP);
+	EnumMap.Emplace("HOUDINI_NODETYPE_CHOP", HAPI_NODETYPE_CHOP);
+	EnumMap.Emplace("HOUDINI_NODETYPE_ROP", HAPI_NODETYPE_ROP);
+	EnumMap.Emplace("HOUDINI_NODETYPE_SHOP", HAPI_NODETYPE_SHOP);
+	EnumMap.Emplace("HOUDINI_NODETYPE_COP", HAPI_NODETYPE_COP);
+	EnumMap.Emplace("HOUDINI_NODETYPE_VOP", HAPI_NODETYPE_VOP);
+	EnumMap.Emplace("HOUDINI_NODETYPE_DOP", HAPI_NODETYPE_DOP);
+	EnumMap.Emplace("HOUDINI_NODETYPE_TOP", HAPI_NODETYPE_TOP);
+}
+
+FEnumParser<HAPI_SessionType>::FEnumParser()
+{
+	EnumMap.Emplace("HOUDINI_SESSION_INPROCESS", HAPI_SESSION_INPROCESS);
+	EnumMap.Emplace("HOUDINI_SESSION_THRIFT", HAPI_SESSION_THRIFT);
+	EnumMap.Emplace("HOUDINI_SESSION_CUSTOM1", HAPI_SESSION_CUSTOM1);
+	EnumMap.Emplace("HOUDINI_SESSION_CUSTOM2", HAPI_SESSION_CUSTOM2);
+	EnumMap.Emplace("HOUDINI_SESSION_CUSTOM3", HAPI_SESSION_CUSTOM3);
+	EnumMap.Emplace("HOUDINI_SESSION_MAX", HAPI_SESSION_MAX);
+}
+
+FEnumParser<HAPI_PartType>::FEnumParser()
+{
+	EnumMap.Emplace("HOUDINI_PARTTYPE_INVALID", HAPI_PARTTYPE_INVALID);
+	EnumMap.Emplace("HOUDINI_PARTTYPE_MESH", HAPI_PARTTYPE_MESH);
+	EnumMap.Emplace("HOUDINI_PARTTYPE_CURVE", HAPI_PARTTYPE_CURVE);
+	EnumMap.Emplace("HOUDINI_PARTTYPE_VOLUME", HAPI_PARTTYPE_VOLUME);
+	EnumMap.Emplace("HOUDINI_PARTTYPE_INSTANCER", HAPI_PARTTYPE_INSTANCER);
+	EnumMap.Emplace("HOUDINI_PARTTYPE_BOX", HAPI_PARTTYPE_BOX);
+	EnumMap.Emplace("HOUDINI_PARTTYPE_SPHERE", HAPI_PARTTYPE_SPHERE);
+	EnumMap.Emplace("HOUDINI_PARTTYPE_MAX", HAPI_PARTTYPE_MAX);
+}
+
+FEnumParser<HAPI_StorageType>::FEnumParser()
+{
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_INVALID", HAPI_STORAGETYPE_INVALID);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_INT", HAPI_STORAGETYPE_INT);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_INT64", HAPI_STORAGETYPE_INT64);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_FLOAT", HAPI_STORAGETYPE_FLOAT);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_FLOAT64", HAPI_STORAGETYPE_FLOAT64);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_STRING", HAPI_STORAGETYPE_STRING);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_UINT8", HAPI_STORAGETYPE_UINT8);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_INT8", HAPI_STORAGETYPE_INT8);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_INT16", HAPI_STORAGETYPE_INT16);
+	EnumMap.Emplace("HOUDINI_STORAGETYPE_MAX", HAPI_STORAGETYPE_MAX);
+}
+
+FEnumParser<HAPI_AttributeOwner>::FEnumParser()
+{
+	EnumMap.Emplace("HOUDINI_ATTROWNER_INVALID", HAPI_ATTROWNER_INVALID);
+	EnumMap.Emplace("HOUDINI_ATTROWNER_VERTEX", HAPI_ATTROWNER_VERTEX);
+	EnumMap.Emplace("HOUDINI_ATTROWNER_POINT", HAPI_ATTROWNER_POINT);
+	EnumMap.Emplace("HOUDINI_ATTROWNER_PRIM", HAPI_ATTROWNER_PRIM);
+	EnumMap.Emplace("HOUDINI_ATTROWNER_DETAIL", HAPI_ATTROWNER_DETAIL);
+	EnumMap.Emplace("HOUDINI_ATTROWNER_MAX", HAPI_ATTROWNER_MAX);
+}
+///////////////////STRUCT/////////////////////////
+
+/// Identifies a session
+USTRUCT(BlueprintType)
+struct FHoudiniSession
+{
+	GENERATED_BODY()
+		/// The type of session determines the which implementation will be
+		/// used to communicate with the Houdini Engine library.
+		UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Houdini Session Info")
+		EHoudiniSessionType HoudiniSessionType;
+
+	/// Some session types support multiple simultaneous sessions. This means
+	/// that each session needs to have a unique identifier.
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Houdini Session Info")
+		int64 SessionId;
+
+	FHoudiniSession()
+		:HoudiniSessionType(EHoudiniSessionType::HOUDINI_SESSION_THRIFT)
+		, SessionId(0)
+	{}
+
+public:
+	HAPI_Session ToHAPi_Session()
+	{
+		HAPI_Session Session;
+		Session.id = (HAPI_SessionId)SessionId;
+		Session.type = (HAPI_SessionType)HoudiniSessionType;
+		return Session;
+	}
+
+	static FHoudiniSession FromHAPI_Session(const HAPI_Session& HAPISession)
+	{
+		FHoudiniSession TempHoudiniSession;
+		TempHoudiniSession.SessionId = (int64)HAPISession.id;
+		TempHoudiniSession.HoudiniSessionType = (EHoudiniSessionType)HAPISession.type;
+		return TempHoudiniSession;
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniCookOptions
+{
+	GENERATED_USTRUCT_BODY();
+
+	HAPI_CookOptions HAPICookOptions;
+};
+
+
+USTRUCT(BlueprintType)
+struct FHoudiniPartInfo
+{
+	GENERATED_USTRUCT_BODY();
+
+	HAPI_PartInfo HAPIPartInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniAttributeInfo
+{
+	GENERATED_USTRUCT_BODY();
+
+	HAPI_AttributeInfo HAPIAttributeInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FVertexListStruct
+{
+	GENERATED_USTRUCT_BODY();
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Houdini Common")
+	TArray<int> Vertexlist;
+};
