@@ -38,6 +38,9 @@ class WORLDHOUDINIENGINE_API UWorldHoudiniEngineUtilsLibrary : public UBlueprint
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Revert vertex list order."), Category = "WorldHoudiniEngineUtilsLibrary | Mesh")
 	static bool RevertVertexListOrder(UPARAM(ref) TArray<int>& VertexList);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, meta = (ToolTip = "Split Vertex list into multiple vertex list."), Category = "WorldHoudiniEngineUtilsLibrary | Mesh")
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta = (ToolTip = "Split Vertex list into multiple vertex list by section index attributes."), Category = "WorldHoudiniEngineUtilsLibrary | Mesh")
 	static bool SplitVertexList(const TArray<int>& VertexList, const TArray<int>& SectionIndexList, TArray<FVertexListStruct>& SplittedVertexLists);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta = (ToolTip = "Split Vertex list into multiple vertex list by prim string attribute."), Category = "WorldHoudiniEngineUtilsLibrary | Mesh")
+	static bool SplitVertexListByStringAttributes(const TArray<int>& VertexList, const TArray<FString>& StringAttributeList, TArray<FVertexListStruct>& SplittedVertexLists);
 };

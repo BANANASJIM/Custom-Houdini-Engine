@@ -481,6 +481,24 @@ void UWorldHoudiniEngineBPLibrary::HoudiniGetPartInfoSubData(const FHoudiniPartI
 	PointCount = PartInfo.HAPIPartInfo.pointCount;
 }
 
+bool UWorldHoudiniEngineBPLibrary::HoudiniGetNodeInfo(FHoudiniSession HoudiniSession, int NodeId, FHoudiniNodeInfo& NodeInfo)
+{
+	if (!HoudiniIsSessionValid(HoudiniSession))
+	{
+		return false;
+	}
+	HAPI_Session OrigSession = HoudiniSession.ToHAPi_Session();
+	HAPI_Result Result = HAPI_GetNodeInfo(&OrigSession, (HAPI_NodeId)NodeId, &NodeInfo.HAPINodeInfo);
+	return Result == HAPI_RESULT_SUCCESS;
+}
+
+void UWorldHoudiniEngineBPLibrary::HoudiniGetNodeInfoSubData(const FHoudiniNodeInfo& NodeInfo, int& ParentNodeId, bool& bIsValid, int& uniqueHoudiniNodeId)
+{
+	ParentNodeId = (int)NodeInfo.HAPINodeInfo.parentId;
+	bIsValid = (bool)NodeInfo.HAPINodeInfo.isValid;
+	uniqueHoudiniNodeId = NodeInfo.HAPINodeInfo.uniqueHoudiniNodeId;
+}
+
 FString UWorldHoudiniEngineBPLibrary::ToString(FHoudiniSession HoudiniSession, HAPI_StringHandle InStringHandle)
 {
 	if (!HoudiniIsSessionValid(HoudiniSession))

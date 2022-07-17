@@ -172,6 +172,31 @@ bool UWorldHoudiniEngineUtilsLibrary::SplitVertexList(const TArray<int>& VertexL
     return true;
 }
 
+bool UWorldHoudiniEngineUtilsLibrary::SplitVertexListByStringAttributes(const TArray<int>& VertexList, const TArray<FString>& StringAttributeList, TArray<FVertexListStruct>& SplittedVertexLists)
+{
+    if (VertexList.Num() == 0 || StringAttributeList.Num() == 0 || VertexList.Num() != StringAttributeList.Num() * 3)
+    {
+        return false;
+    }
+    TArray<FString> UniqueStringAttributeList;
+    for (auto& Str : StringAttributeList)
+    {
+        UniqueStringAttributeList.AddUnique(Str);
+    }
+
+    if (UniqueStringAttributeList.Num() == 0)
+        return false;
+
+    SplittedVertexLists.SetNum(UniqueStringAttributeList.Num());
+    for (int i = 0; i < VertexList.Num(); i++)
+    {
+        int SectionIndex = UniqueStringAttributeList.Find(StringAttributeList[i / 3]);
+        SplittedVertexLists[SectionIndex].Vertexlist.Add(VertexList[i]);
+    }
+
+    return true;
+}
+
 bool UWorldHoudiniEngineUtilsLibrary::RevertVertexListOrder(TArray<int>& VertexList)
 {
     if (VertexList.Num() == 0 || VertexList.Num() % 3 != 0)

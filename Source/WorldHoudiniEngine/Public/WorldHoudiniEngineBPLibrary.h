@@ -176,6 +176,13 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WorldHoudiniBPLibrary | Geometry Setters")
 		static void HoudiniGetPartInfoSubData(const FHoudiniPartInfo& PartInfo, int& FaceCount, int& PointCount);
 
+//		Fill an HAPI_NodeInfo struct.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WorldHoudiniBPLibrary | Nodes")
+		static bool HoudiniGetNodeInfo(FHoudiniSession HoudiniSession, int NodeId, FHoudiniNodeInfo& NodeInfo);
+
+//		Get info  from node info.
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WorldHoudiniBPLibrary | Geometry Setters")
+		static void HoudiniGetNodeInfoSubData(const FHoudiniNodeInfo& NodeInfo, int& ParentNodeId, bool& bIsValid, int& uniqueHoudiniNodeId);
 private:
 		static FString ToString(FHoudiniSession HoudiniSession, HAPI_StringHandle InStringHandle);
 

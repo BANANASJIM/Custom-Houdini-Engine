@@ -275,3 +275,11 @@ struct FVertexListStruct
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Houdini Common")
 	TArray<int> Vertexlist;
 };
+
+USTRUCT(BlueprintType)
+struct FHoudiniNodeInfo
+{
+	GENERATED_USTRUCT_BODY();
+	
+	HAPI_NodeInfo HAPINodeInfo;
+};
